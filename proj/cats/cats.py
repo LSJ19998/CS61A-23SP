@@ -33,8 +33,8 @@ def pick(paragraphs, select, k):
     # BEGIN PROBLEM 1
     "*** YOUR CODE HERE ***"
     # 列表的方法
-    paragraphs = [p for p in paragraphs if select(p)]
-    return paragraphs[k] if k <= len(paragraphs) else ''
+    paragraphs = [para for para in paragraphs if select(para)]
+    return paragraphs[k] if k < len(paragraphs) else ''
     # END PROBLEM 1
 
 
@@ -57,7 +57,7 @@ def about(subject):
     "*** YOUR CODE HERE ***"
     def exit_sub(paragraphs):
         paragraphs = lower(remove_punctuation(paragraphs)).split()
-        return True if [para for para in paragraphs if True in [sub == para for sub in subject]] else False
+        return True if True in [True for para in paragraphs if True in [sub == para for sub in subject]] else False
     return exit_sub
     # END PROBLEM 2
 
@@ -89,16 +89,13 @@ def accuracy(typed, source):
     source = split(source)
     # BEGIN PROBLEM 3
     "*** YOUR CODE HERE ***"
-    res = 0
     if len(typed) == len(source) == 0:
         return 100.0
     if len(typed) == 0 or len(source) == 0:
         return 0.0
     if len(typed) > len(source):
-        res = sum([1 for i in range(len(source)) if typed[i] == source[i]])
-        return (res / len(typed)) * 100.0
-    res = sum([1 for i in range(len(typed)) if typed[i] == source[i]])
-    return (res / len(typed)) * 100.0
+        return (sum([1 for i in range(len(source)) if typed[i] == source[i]]) / len(typed)) * 100.0
+    return (sum([1 for i in range(len(typed)) if typed[i] == source[i]]) / len(typed)) * 100.0
     # END PROBLEM 3
 
 
@@ -145,18 +142,23 @@ def autocorrect(typed_word, word_list, diff_function, limit):
     """
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
+
+    # 过滤 -> 选择最少
+
+    # 出现的问题:
+    #  1. 差异值: 小于等于
+    #  2. 同等的差异, 返回第一个元素
+
+    # 方法: reverse 执行的过程从前往后
     if typed_word in word_list:
         return typed_word
-    lst = [(diff_function(
-        typed_word, word, limit), word) for word in word_list if diff_function(
-        typed_word, word, limit) <= limit]
-    if lst:
-        min_diff, min_word = lst[0][0], lst[0][1]
-        for diff, word in lst:
-            if diff < min_diff:
-                min_diff, min_word = diff, word
-        return min_word
-    return typed_word
+    min_i, min_v = limit, typed_word
+    for word in word_list:
+        i = diff_function(typed_word, word, limit)
+        # 在想一想 - 顺序
+        if i < min_i:
+            min_i, min_v = i, word
+    return min_v
     # END PROBLEM 5
 
 
@@ -185,8 +187,10 @@ def feline_fixes(typed, source, limit):
     # BEGIN PROBLEM 6
     if limit < 0:
         return 1
+    if len(typed) == len(source) == 0:
+        return 0
     if len(typed) == 0 or len(source) == 0:
-        return len(typed) if len(typed) > 0 else len(source)
+        return len(typed) if len(source) == 0 else len(source)
     if typed[0] == source[0]:
         return feline_fixes(typed[1:], source[1:], limit)
     return 1 + feline_fixes(typed[1:], source[1:], limit - 1)
@@ -222,6 +226,7 @@ def minimum_mewtations(typed, source, limit):
     if typed[0] == source[0]:
         return minimum_mewtations(typed[1:], source[1:], limit)
     else:
+        # 着重考虑一下, 不相等的情况
         add = 1 + minimum_mewtations(typed, source[1:], limit - 1)
         remove = 1 + minimum_mewtations(typed[1:], source, limit - 1)
         substitute = 1 + minimum_mewtations(typed[1:], source[1:], limit - 1)
@@ -280,6 +285,7 @@ def report_progress(typed, prompt, user_id, upload):
     # END PROBLEM 8
 
 
+# 需要熟悉的了解一下数据抽象的行为及其要求
 def time_per_word(words, times_per_player):
     """Given timing data, return a match data abstraction, which contains a
     list of words and the amount of time each player took to type each word.
@@ -311,6 +317,7 @@ def time_per_word(words, times_per_player):
     # END PROBLEM 9
 
 
+# 二元数组的处理方法
 def fastest_words(match):
     """Return a list of lists of which words each player typed fastest.
 
